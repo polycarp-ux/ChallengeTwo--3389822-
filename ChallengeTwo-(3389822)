@@ -1,0 +1,70 @@
+// SearchSuggestionSystem.js
+// Challenge Two – Data Structures & Algorithms
+// Repo name format: ChallengeTwo-<YourIndexNumber>
+
+class SearchSuggestionSystem {
+  /**
+   * @param {string[]} products
+   */
+  constructor(products) {
+    // keep a sorted copy for fast prefix look‑ups
+    this.products = [...products].sort();
+  }
+
+  /**
+   * @param {string} searchWord
+   * @returns {string[][]} suggestions for every incremental prefix
+   */
+  getSuggestions(searchWord) {
+    const res = [];
+    let prefix = '';
+
+    for (const ch of searchWord) {
+      prefix += ch;
+
+      // Binary‑search left boundary of current prefix
+      let left = this._lowerBound(prefix);
+      const cur = [];
+
+      // Collect up to three matching products
+      for (let i = left; i < this.products.length && cur.length < 3; i++) {
+        if (this.products[i].startsWith(prefix)) cur.push(this.products[i]);
+        else break; // once prefix no longer matches, we can stop
+      }
+      res.push(cur);
+    }
+    return res;
+  }
+
+  /**
+   * Find first index where product ≥ prefix (lexicographically)
+   * Classic lower‑bound binary search
+   */
+  _lowerBound(prefix) {
+    let lo = 0,
+      hi = this.products.length;
+    while (lo < hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      if (this.products[mid] < prefix) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo;
+  }
+}
+
+/* ======= Quick self‑test =======
+
+const products = ["mobile","mouse","moneypot","monitor","mousepad"];
+const system = new SearchSuggestionSystem(products);
+console.log(system.getSuggestions("mouse"));
+
+Expected output:
+[
+  ['mobile','moneypot','monitor'],
+  ['mobile','moneypot','monitor'],
+  ['mouse','mousepad'],
+  ['mouse','mousepad'],
+  ['mouse','mousepad']
+]
+*/
+module.exports = SearchSuggestionSystem;
